@@ -1,5 +1,13 @@
 # MindSpend — Manuel Apple Kurulum Checklist'i
 
+> **Not:** "MindSpend" adında App Store'da zaten 2 uygulama olduğu için App
+> Store'daki görünen isim (App Store Connect kaydı, ana ekran ikonu altındaki
+> isim) **AnPause** olarak seçildi. Bundle ID (`com.mindspend.app`), Xcode
+> proje/modül adı ve klasör yapısı hâlâ `MindSpend` — bunları değiştirmek
+> gereksiz risk taşıdığı için sadece kullanıcıya görünen isim güncellendi.
+> App Store Connect'te yeni app kaydı oluştururken **App Name: AnPause**
+> girin.
+
 Bu dosya, Claude Code'un yapamadığı (Apple Developer portal, App Store Connect,
 RevenueCat dashboard, imzalama) işlemleri listeler. Mac'iniz olmadığı için bu
 adımların bir kısmını **iPhone üzerinden Apple Developer app / App Store
@@ -51,7 +59,7 @@ Bu repodaki `MindSpend/` klasörü kaynak dosyaları içerir ama henüz bir
 
 ## 3. App Store Connect
 
-- [ ] Yeni app kaydı (Bundle ID, isim, SKU).
+- [ ] Yeni app kaydı (Bundle ID: `com.mindspend.app`, isim: **AnPause**, SKU).
 - [ ] Subscription group + premium ürün tanımı (fiyat, süre — aylık/yıllık).
 - [x] App Review Notes taslağı: `APP_REVIEW_NOTES.md` — App Store Connect'e
       kopyalanmadan önce güncel App Review kurallarına göre gözden geçirin.

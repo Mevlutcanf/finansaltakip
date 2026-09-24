@@ -4,7 +4,7 @@ import UIKit
 
 /// Shield ekranının görünümünü belirler (rehber madde 22).
 /// Kullanıcıyı cezalandırmak değil, karar sürecine sürtünme eklemek amacıyla
-/// MindSpend markasıyla, kısa ve düşündürücü bir mesaj gösterir.
+/// AnPause markasıyla, kısa ve düşündürücü bir mesaj gösterir.
 final class ShieldConfigurationExtension: ShieldConfigurationDataSource {
     override func configuration(shielding application: Application) -> ShieldConfiguration {
         Self.makeConfiguration()

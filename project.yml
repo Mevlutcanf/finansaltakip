@@ -29,7 +29,7 @@ targets:
       path: MindSpend/App/Info.plist
       properties:
         UILaunchScreen: {}
-        CFBundleDisplayName: MindSpend
+        CFBundleDisplayName: AnPause
     entitlements:
       path: MindSpend/App/MindSpend.entitlements
       properties:

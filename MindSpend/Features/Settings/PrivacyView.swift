@@ -4,12 +4,12 @@ struct PrivacyView: View {
     var body: some View {
         List {
             Section("Veri Saklama") {
-                Text("MindSpend local-first çalışır. Harcama kayıtların, kaçınılan alışverişlerin ve kalkan ayarların yalnızca bu cihazda, SwiftData ile saklanır. Hesap oluşturman gerekmez.")
+                Text("AnPause local-first çalışır. Harcama kayıtların, kaçınılan alışverişlerin ve kalkan ayarların yalnızca bu cihazda, SwiftData ile saklanır. Hesap oluşturman gerekmez.")
                     .font(.subheadline)
             }
 
             Section("Screen Time") {
-                Text("Seçtiğin uygulama ve web siteleri Apple'ın Family Controls çerçevesinde opak token olarak tutulur. MindSpend hangi uygulamaları kullandığını okuyamaz veya bunları sunucuya göndermez.")
+                Text("Seçtiğin uygulama ve web siteleri Apple'ın Family Controls çerçevesinde opak token olarak tutulur. AnPause hangi uygulamaları kullandığını okuyamaz veya bunları sunucuya göndermez.")
                     .font(.subheadline)
             }
 

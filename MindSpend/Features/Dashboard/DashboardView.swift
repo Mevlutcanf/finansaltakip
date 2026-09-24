@@ -24,7 +24,7 @@ struct DashboardView: View {
             }
             .padding()
         }
-        .navigationTitle("MindSpend")
+        .navigationTitle("AnPause")
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Menu {

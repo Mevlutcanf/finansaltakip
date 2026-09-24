@@ -8,7 +8,7 @@ struct PaywallView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
-                    Text("MindSpend Premium")
+                    Text("AnPause Premium")
                         .font(.largeTitle.bold())
 
                     Text("Premium açıldığında sürekli değer sunar:")
