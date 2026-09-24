@@ -27,6 +27,7 @@ final class LocalRoastServiceTests: XCTestCase {
             totalSpend: Money(minorUnits: 10000)
         )
         let result = await service.generateRoast(summary: summary, tone: .mild)
-        XCTAssertTrue(result.contains("Elektronik"))
+        // LocalRoastService kategori adını cümle içinde küçük harfe çevirir.
+        XCTAssertTrue(result.localizedCaseInsensitiveContains("elektronik"))
     }
 }
