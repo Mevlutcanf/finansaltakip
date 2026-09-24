@@ -1,7 +1,21 @@
 import SwiftUI
 
 struct RootTabView: View {
+    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
+
     var body: some View {
+        if hasCompletedOnboarding {
+            mainTabs
+        } else {
+            OnboardingView {
+                NotificationService.shared.requestAuthorizationIfNeeded()
+                NotificationService.shared.scheduleWeeklyReflection()
+                hasCompletedOnboarding = true
+            }
+        }
+    }
+
+    private var mainTabs: some View {
         TabView {
             NavigationStack {
                 DashboardView()

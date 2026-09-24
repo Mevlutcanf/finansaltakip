@@ -26,4 +26,19 @@ final class NotificationService {
     func cancelCooldownNotification(for item: AvoidedPurchase) {
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [item.id.uuidString])
     }
+
+    /// Rehber madde 33 — spam olmayacak şekilde, haftada bir kez.
+    func scheduleWeeklyReflection() {
+        let content = UNMutableNotificationContent()
+        content.title = "Haftalık Farkındalık"
+        content.body = "Bu hafta erteleyip vazgeçtiğin alışverişlere bir bak."
+        content.sound = .default
+
+        var dateComponents = DateComponents()
+        dateComponents.weekday = 2 // Pazartesi
+        dateComponents.hour = 10
+        let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
+        let request = UNNotificationRequest(identifier: "weekly-reflection", content: content, trigger: trigger)
+        UNUserNotificationCenter.current().add(request)
+    }
 }
