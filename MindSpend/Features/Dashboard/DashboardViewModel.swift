@@ -9,19 +9,29 @@ final class DashboardViewModel {
     private(set) var avoidedPotential: Money = .zero
     private(set) var activeShieldSessions: [ShieldSession] = []
     private(set) var recentTransactions: [Transaction] = []
+    private(set) var streak: StreakSummary = StreakSummary(noSpendDayStreak: 0, cooldownStreakThisWeek: 0)
+    private(set) var isTodayConfirmedNoSpend = false
 
     private let transactionRepository: TransactionRepositoryProtocol
     private let avoidedPurchaseRepository: AvoidedPurchaseRepositoryProtocol
     private let shieldSessionRepository: ShieldSessionRepositoryProtocol
+    private let noSpendDayRepository: NoSpendDayRepositoryProtocol
+    private let streakService: StreakService
 
     init(
         transactionRepository: TransactionRepositoryProtocol,
         avoidedPurchaseRepository: AvoidedPurchaseRepositoryProtocol,
-        shieldSessionRepository: ShieldSessionRepositoryProtocol
+        shieldSessionRepository: ShieldSessionRepositoryProtocol,
+        noSpendDayRepository: NoSpendDayRepositoryProtocol
     ) {
         self.transactionRepository = transactionRepository
         self.avoidedPurchaseRepository = avoidedPurchaseRepository
         self.shieldSessionRepository = shieldSessionRepository
+        self.noSpendDayRepository = noSpendDayRepository
+        self.streakService = StreakService(
+            noSpendDayRepository: noSpendDayRepository,
+            avoidedPurchaseRepository: avoidedPurchaseRepository
+        )
     }
 
     func refresh() {
@@ -42,10 +52,17 @@ final class DashboardViewModel {
             avoidedPotential = Money(minorUnits: avoidedTotal)
 
             activeShieldSessions = try shieldSessionRepository.fetchActive()
+            isTodayConfirmedNoSpend = try noSpendDayRepository.isTodayConfirmed()
+            streak = streakService.summary()
         } catch {
             // Local persistence okuma hatası; kullanıcıya boş durum gösterilir.
             monthlySpend = .zero
             recentTransactions = []
         }
+    }
+
+    func confirmNoSpendToday() {
+        try? noSpendDayRepository.confirmToday()
+        refresh()
     }
 }

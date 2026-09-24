@@ -12,8 +12,14 @@ struct DashboardView: View {
             VStack(alignment: .leading, spacing: 20) {
                 if let viewModel {
                     summaryCards(viewModel: viewModel)
+                    streakSection(viewModel: viewModel)
                     activeShieldSection(viewModel: viewModel)
                     recentTransactionsSection(viewModel: viewModel)
+                    NavigationLink {
+                        RoastView()
+                    } label: {
+                        Label("Roast My Wallet", systemImage: "flame")
+                    }
                 }
             }
             .padding()
@@ -47,11 +53,35 @@ struct DashboardView: View {
                 viewModel = DashboardViewModel(
                     transactionRepository: TransactionRepository(context: modelContext),
                     avoidedPurchaseRepository: AvoidedPurchaseRepository(context: modelContext),
-                    shieldSessionRepository: ShieldSessionRepository(context: modelContext)
+                    shieldSessionRepository: ShieldSessionRepository(context: modelContext),
+                    noSpendDayRepository: NoSpendDayRepository(context: modelContext)
                 )
             }
             viewModel?.refresh()
         }
+    }
+
+    @ViewBuilder
+    private func streakSection(viewModel: DashboardViewModel) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Label("\(viewModel.streak.noSpendDayStreak) günlük seri", systemImage: "flame.fill")
+                    .font(.subheadline.weight(.medium))
+                Spacer()
+                if !viewModel.isTodayConfirmedNoSpend {
+                    Button("Bugün harcama yapmadım") {
+                        viewModel.confirmNoSpendToday()
+                    }
+                    .font(.caption.weight(.medium))
+                    .buttonStyle(.bordered)
+                }
+            }
+            Text("Bu hafta \(viewModel.streak.cooldownStreakThisWeek) kez dürtünü erteledin.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .padding()
+        .background(.secondary.opacity(0.08), in: RoundedRectangle(cornerRadius: 16))
     }
 
     @ViewBuilder
