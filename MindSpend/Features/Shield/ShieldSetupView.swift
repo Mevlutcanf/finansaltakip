@@ -6,9 +6,15 @@ struct ShieldSetupView: View {
     @Query(sort: \ShieldRule.createdAt, order: .reverse) private var rules: [ShieldRule]
     @Environment(\.modelContext) private var modelContext
     @Query(filter: #Predicate<ShieldSession> { $0.statusRaw == "active" }) private var activeSessions: [ShieldSession]
+    @Environment(SubscriptionManager.self) private var subscriptionManager
     @State private var authService = ScreenTimeAuthorizationService()
     @State private var showAddRule = false
+    @State private var showPaywall = false
     @State private var activationError: String?
+
+    private var canAddRule: Bool {
+        subscriptionManager.state.isPremium || rules.count < FreeTierLimits.maxShieldRules
+    }
 
     var body: some View {
         List {
@@ -46,7 +52,11 @@ struct ShieldSetupView: View {
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button {
-                    showAddRule = true
+                    if canAddRule {
+                        showAddRule = true
+                    } else {
+                        showPaywall = true
+                    }
                 } label: {
                     Label("Yeni Kural", systemImage: "plus")
                 }
@@ -55,6 +65,9 @@ struct ShieldSetupView: View {
         }
         .sheet(isPresented: $showAddRule) {
             AddShieldRuleView()
+        }
+        .sheet(isPresented: $showPaywall) {
+            PaywallView()
         }
         .onAppear { authService.refreshStatus() }
     }
