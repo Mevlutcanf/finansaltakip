@@ -74,6 +74,11 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.mindspend.app.testhost
         TARGETED_DEVICE_FAMILY: "1"
+        # Test dosyaları `@testable import MindSpend` kullanıyor; bu host'un
+        # derlenen modül adı da "MindSpend" olmalı, yoksa tüm app tipleri
+        # (Money, Transaction, ...) link aşamasında "Undefined symbol" olarak
+        # başarısız olur.
+        PRODUCT_MODULE_NAME: MindSpend
     dependencies:
       - package: RevenueCat
         product: RevenueCat
