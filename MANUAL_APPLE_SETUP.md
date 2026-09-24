@@ -2,11 +2,13 @@
 
 > **Not:** "MindSpend" adında App Store'da zaten 2 uygulama olduğu için App
 > Store'daki görünen isim (App Store Connect kaydı, ana ekran ikonu altındaki
-> isim) **AnPause** olarak seçildi. Bundle ID (`com.mindspend.app`), Xcode
+> isim) **AnPause** olarak seçildi. Ayrıca `com.mindspend.app` Bundle ID'si
+> Apple Developer portalında "not available" çıktığı için (bundle ID'ler
+> global olarak benzersiz olmalı) **`com.anpause.app`** kullanılıyor. Xcode
 > proje/modül adı ve klasör yapısı hâlâ `MindSpend` — bunları değiştirmek
-> gereksiz risk taşıdığı için sadece kullanıcıya görünen isim güncellendi.
-> App Store Connect'te yeni app kaydı oluştururken **App Name: AnPause**
-> girin.
+> gereksiz risk taşıdığı için sadece Bundle ID ve kullanıcıya görünen isim
+> güncellendi. App Store Connect'te yeni app kaydı oluştururken
+> **App Name: AnPause**, **Bundle ID: com.anpause.app** girin.
 
 Bu dosya, Claude Code'un yapamadığı (Apple Developer portal, App Store Connect,
 RevenueCat dashboard, imzalama) işlemleri listeler. Mac'iniz olmadığı için bu
@@ -24,7 +26,7 @@ Bu repodaki `MindSpend/` klasörü kaynak dosyaları içerir ama henüz bir
 - **Seçenek A (önerilen):** Bir arkadaşınızın Mac'inde veya App Store'daki
   "Swift Playgrounds" / geçici bir bulut Mac hizmetinde (örn. MacinCloud,
   GitHub Codespaces + macOS gibi) Xcode açıp: File → New → Project → App,
-  Bundle ID: `com.mindspend.app` (örnek), Interface: SwiftUI, Storage:
+  Bundle ID: `com.anpause.app` (örnek), Interface: SwiftUI, Storage:
   SwiftData seçin. Sonra `MindSpend/` klasöründeki dosyaları projeye sürükleyin
   ve gruplara (App, Domain, Persistence, Features, Services, ScreenTime)
   ayırın.
@@ -38,16 +40,16 @@ Bu repodaki `MindSpend/` klasörü kaynak dosyaları içerir ama henüz bir
 
 - [ ] Apple Developer Program üyeliği (yıllık $99) — İphone'dan da
       developer.apple.com üzerinden kayıt olunabilir.
-- [ ] Bundle ID oluşturma: `com.mindspend.app` (Identifiers → App IDs).
+- [ ] Bundle ID oluşturma: `com.anpause.app` (Identifiers → App IDs).
 - [ ] **Family Controls** capability'sini Bundle ID'ye ekleme.
 - [ ] Family Controls **distribution entitlement** başvurusu (Apple'a ayrı
       onay başvurusu gerekir — "Request additional capabilities" formu).
       Bu onay süre alabilir, mümkün olduğunca erken başvurun.
 - [ ] Extension'lar için ayrı Bundle ID'ler:
-      - `com.mindspend.app.ShieldConfiguration`
-      - `com.mindspend.app.ShieldAction`
-      - `com.mindspend.app.DeviceActivityMonitor`
-- [ ] App Group oluşturma: `group.com.mindspend.app` (ana app + extension'lar
+      - `com.anpause.app.ShieldConfiguration`
+      - `com.anpause.app.ShieldAction`
+      - `com.anpause.app.DeviceActivityMonitor`
+- [ ] App Group oluşturma: `group.com.anpause.app` (ana app + extension'lar
       arasında paylaşılan hafif storage için).
 
 ## 2. Certificates & Provisioning
@@ -59,7 +61,7 @@ Bu repodaki `MindSpend/` klasörü kaynak dosyaları içerir ama henüz bir
 
 ## 3. App Store Connect
 
-- [ ] Yeni app kaydı (Bundle ID: `com.mindspend.app`, isim: **AnPause**, SKU).
+- [ ] Yeni app kaydı (Bundle ID: `com.anpause.app`, isim: **AnPause**, SKU).
 - [ ] Subscription group + premium ürün tanımı (fiyat, süre — aylık/yıllık).
 - [x] App Review Notes taslağı: `APP_REVIEW_NOTES.md` — App Store Connect'e
       kopyalanmadan önce güncel App Review kurallarına göre gözden geçirin.

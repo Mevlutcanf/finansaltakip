@@ -6,7 +6,7 @@ gözden geçirilmelidir.
 
 > Not: Uygulamanın App Store'daki adı **AnPause**'dur ("MindSpend" adında
 > App Store'da zaten iki uygulama olduğu için). Bundle ID
-> (`com.mindspend.app`) ve iç kod adı hâlâ MindSpend — bu doküman App
+> (`com.anpause.app`) ve iç kod adı hâlâ MindSpend — bu doküman App
 > Review'a gönderilecek metinde kullanıcıya görünen ismi (AnPause)
 > kullanır.
 

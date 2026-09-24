@@ -1,6 +1,6 @@
 name: MindSpend
 options:
-  bundleIdPrefix: com.mindspend
+  bundleIdPrefix: com.anpause
   deploymentTarget:
     iOS: "17.0"
   createIntermediateGroups: true
@@ -9,6 +9,12 @@ settings:
   base:
     SWIFT_VERSION: "5.0"
     IPHONEOS_DEPLOYMENT_TARGET: "17.0"
+    # NOT: Team ID (2ZH4RCM3MU) burada bilerek boş bırakılıyor. Simulator'da
+    # build+test alan CI, DEVELOPMENT_TEAM dolu olduğunda Xcode'un otomatik
+    # imzalama yöneticisini Apple'a bağlanmaya zorlayabilir (CI'da giriş
+    # yapılmış bir Apple ID yok) ve şu an yeşil olan build/test'i kırma
+    # riski taşır. Team ID, TestFlight dağıtımı fastlane match ile kurulunca
+    # o adımda (Fastfile/Matchfile içinde) kullanılacak.
     DEVELOPMENT_TEAM: ""
     CODE_SIGN_STYLE: Automatic
 
@@ -35,10 +41,10 @@ targets:
       properties:
         com.apple.developer.family-controls: true
         com.apple.security.application-groups:
-          - group.com.mindspend.app
+          - group.com.anpause.app
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.mindspend.app
+        PRODUCT_BUNDLE_IDENTIFIER: com.anpause.app
         TARGETED_DEVICE_FAMILY: "1"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
     dependencies:
@@ -72,7 +78,7 @@ targets:
         CFBundleDisplayName: MindSpend
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.mindspend.app.testhost
+        PRODUCT_BUNDLE_IDENTIFIER: com.anpause.app.testhost
         TARGETED_DEVICE_FAMILY: "1"
         # Test dosyaları `@testable import MindSpend` kullanıyor; bu host'un
         # derlenen modül adı da "MindSpend" olmalı, yoksa tüm app tipleri
@@ -90,7 +96,7 @@ targets:
       - path: MindSpend/Tests
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.mindspend.app.Tests
+        PRODUCT_BUNDLE_IDENTIFIER: com.anpause.app.Tests
         GENERATE_INFOPLIST_FILE: YES
         TEST_HOST: "$(BUILT_PRODUCTS_DIR)/MindSpendTestHost.app/MindSpendTestHost"
         BUNDLE_LOADER: "$(TEST_HOST)"
@@ -109,10 +115,10 @@ targets:
       path: Extensions/Shared.entitlements
       properties:
         com.apple.security.application-groups:
-          - group.com.mindspend.app
+          - group.com.anpause.app
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.mindspend.app.ShieldConfiguration
+        PRODUCT_BUNDLE_IDENTIFIER: com.anpause.app.ShieldConfiguration
         TARGETED_DEVICE_FAMILY: "1"
         SKIP_INSTALL: NO
 
@@ -128,10 +134,10 @@ targets:
       path: Extensions/Shared.entitlements
       properties:
         com.apple.security.application-groups:
-          - group.com.mindspend.app
+          - group.com.anpause.app
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.mindspend.app.ShieldAction
+        PRODUCT_BUNDLE_IDENTIFIER: com.anpause.app.ShieldAction
         TARGETED_DEVICE_FAMILY: "1"
         SKIP_INSTALL: NO
 
@@ -147,10 +153,10 @@ targets:
       path: Extensions/Shared.entitlements
       properties:
         com.apple.security.application-groups:
-          - group.com.mindspend.app
+          - group.com.anpause.app
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.mindspend.app.DeviceActivityMonitor
+        PRODUCT_BUNDLE_IDENTIFIER: com.anpause.app.DeviceActivityMonitor
         TARGETED_DEVICE_FAMILY: "1"
         SKIP_INSTALL: NO
 
