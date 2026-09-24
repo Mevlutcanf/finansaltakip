@@ -51,6 +51,33 @@ targets:
       - package: RevenueCat
         product: RevenueCat
 
+  # Family Controls / ManagedSettingsUI / DeviceActivity extension'ları
+  # (ShieldConfiguration/ShieldAction/DeviceActivityMonitor) iOS Simulator'da
+  # kurulamaz (Apple, Screen Time API'lerini yalnızca gerçek cihazda
+  # destekler — bkz. rehber madde 35, 49). Bu yüzden unit testler,
+  # extension embed etmeyen ayrı bir "test host" app'te çalıştırılır.
+  # Gerçek cihaz/TestFlight için asıl `MindSpend` hedefi (extension'lı)
+  # kullanılmaya devam eder.
+  MindSpendTestHost:
+    type: application
+    platform: iOS
+    sources:
+      - path: MindSpend
+        excludes:
+          - "Tests/**"
+    info:
+      path: MindSpend/App/Info.plist
+      properties:
+        UILaunchScreen: {}
+        CFBundleDisplayName: MindSpend
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.mindspend.app.testhost
+        TARGETED_DEVICE_FAMILY: "1"
+    dependencies:
+      - package: RevenueCat
+        product: RevenueCat
+
   MindSpendTests:
     type: bundle.unit-test
     platform: iOS
@@ -61,7 +88,7 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.mindspend.app.Tests
         GENERATE_INFOPLIST_FILE: YES
     dependencies:
-      - target: MindSpend
+      - target: MindSpendTestHost
 
   ShieldConfigurationExtension:
     type: app-extension
@@ -125,6 +152,13 @@ schemes:
     build:
       targets:
         MindSpend: all
+    run:
+      config: Debug
+
+  MindSpendTests:
+    build:
+      targets:
+        MindSpendTestHost: all
         MindSpendTests: [test]
     test:
       targets:

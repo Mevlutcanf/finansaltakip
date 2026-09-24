@@ -45,7 +45,7 @@ jobs:
         run: |
           xcodebuild test \
             -project MindSpend.xcodeproj \
-            -scheme MindSpend \
+            -scheme MindSpendTests \
             -destination "id=${{ steps.simulator.outputs.udid }}" \
             CODE_SIGN_IDENTITY="-" \
             CODE_SIGNING_REQUIRED=NO
