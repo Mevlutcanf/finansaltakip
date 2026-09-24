@@ -23,9 +23,11 @@ platform :ios do
 
   desc "Fetch/sync App Store distribution certificates and profiles"
   lane :sync_signing do
+    # readonly: false, cunku anpause-certificates deposu bos basliyor;
+    # match burada eksik sertifika/profili olusturup depoya yazabilmeli.
     match(
       type: "appstore",
-      readonly: is_ci,
+      readonly: false,
       app_identifier: APP_IDENTIFIERS.values
     )
   end
