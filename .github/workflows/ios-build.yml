@@ -22,8 +22,7 @@ jobs:
           xcodebuild build \
             -project MindSpend.xcodeproj \
             -scheme MindSpend \
-            -destination "generic/platform=iOS Simulator" \
-            CODE_SIGNING_ALLOWED=NO
+            -destination "generic/platform=iOS Simulator"
 
       - name: Find available iOS Simulator
         id: simulator
@@ -48,4 +47,5 @@ jobs:
             -project MindSpend.xcodeproj \
             -scheme MindSpend \
             -destination "id=${{ steps.simulator.outputs.udid }}" \
-            CODE_SIGNING_ALLOWED=NO
+            CODE_SIGN_IDENTITY="-" \
+            CODE_SIGNING_REQUIRED=NO
