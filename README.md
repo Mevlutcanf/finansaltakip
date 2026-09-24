@@ -9,28 +9,38 @@ sağlandı).
 
 ## Durum
 
-Bu repo şu an **Xcode/Mac gerektirmeyen kaynak kod hazırlığı** aşamasında
-geliştiriliyor (geliştirici ana bilgisayarında değil). Tamamlanan fazlar:
+Bu repo **Xcode/Mac gerektirmeyen kaynak kod hazırlığı** aşamasında
+geliştirildi (geliştirici ana bilgisayarında değilken). FAZ 0-6 tamamlandı:
 
 - **FAZ 0** — Proje klasör yapısı (bkz. rehber madde 45).
 - **FAZ 1** — Domain enum'ları (`Emotion`, `SpendingTrigger`,
   `SpendingCategory`, `CooldownDuration`), SwiftData modelleri
-  (`Transaction`, `AvoidedPurchase`, `ShieldRule`, `ShieldSession`),
-  repository katmanı ve `ModelContainer` kurulumu.
+  (`Transaction`, `AvoidedPurchase`, `ShieldRule`, `ShieldSession`,
+  `NoSpendDay`), repository katmanı ve `ModelContainer` kurulumu.
 - **FAZ 2** — Core UI: `DashboardView`, `AddTransactionView`,
   `PrePurchaseCheckView`, `HistoryView`, `AvoidedPurchasesView`,
-  `InsightsView`, `ShieldSetupView` (Screen Time olmadan skeleton),
-  `SettingsView`.
+  `InsightsView`, `SettingsView`.
+- **FAZ 3** — Family Controls authorization, `FamilyActivityPicker`,
+  `ManagedSettingsStore` shield, `ShieldConfiguration`/`ShieldAction`/
+  `DeviceActivityMonitor` extension'ları, App Group tabanlı paylaşımlı
+  durum.
+- **FAZ 4** — `IAPServiceProtocol` soyutlaması, `LocalIAPService`
+  (varsayılan) / `RevenueCatIAPService`, `SubscriptionManager`,
+  `PaywallView`, free tier limiti (1 Shield Rule).
+- **FAZ 5** — `NoSpendDay` streak'i, `RoastServiceProtocol` /
+  `LocalRoastService`, `RoastView` (paylaşılabilir kart).
+- **FAZ 6** — `OnboardingView`, `PrivacyView` / `AIDataUsageView`,
+  `ExportService` (CSV/JSON), haftalık reflection bildirimi.
 
-Henüz yapılmadı (bir sonraki adımlar):
+Henüz yapılmadı (manuel / Apple tarafı — bkz. `MANUAL_APPLE_SETUP.md` ve
+`APP_REVIEW_NOTES.md`):
 
-- **Xcode projesi** (`.xcodeproj`) henüz oluşturulmadı — bkz.
-  `MANUAL_APPLE_SETUP.md` madde 0. Bir Mac'e (veya CI'a) ihtiyaç var.
-- **FAZ 3** — Family Controls / ManagedSettings / DeviceActivity
-  entegrasyonu ve Shield extension'ları.
-- **FAZ 4** — RevenueCat / Freemium.
-- **FAZ 5** — Gamification + Roast My Wallet.
-- **FAZ 6-7** — Privacy/Polish, TestFlight/App Store.
+- **Xcode projesi** (`.xcodeproj`) henüz elle oluşturulmadı; CI (`project.yml`
+  + XcodeGen) bunu her push'ta otomatik üretip build/test alıyor ama gerçek
+  cihazda/TestFlight'ta ilk çalıştırma için Apple Developer + App Store
+  Connect kurulumu (madde 1-4) gerekiyor.
+- **FAZ 7** — TestFlight dağıtımı, App Store submission — tamamen manuel
+  adımlar, `MANUAL_APPLE_SETUP.md`'de checklist halinde.
 
 ## Build hakkında önemli not
 

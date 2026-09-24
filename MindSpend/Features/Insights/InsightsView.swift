@@ -16,7 +16,7 @@ struct InsightsView: View {
                         } else {
                             Chart(viewModel.emotionBreakdown) { item in
                                 BarMark(
-                                    x: .value("Tutar", item.total.decimalValue as NSDecimalNumber),
+                                    x: .value("Tutar", item.total.doubleValue),
                                     y: .value("Duygu", item.emotion.displayName)
                                 )
                             }
@@ -30,7 +30,7 @@ struct InsightsView: View {
                         } else {
                             Chart(viewModel.triggerBreakdown) { item in
                                 BarMark(
-                                    x: .value("Tutar", item.total.decimalValue as NSDecimalNumber),
+                                    x: .value("Tutar", item.total.doubleValue),
                                     y: .value("Tetikleyici", item.trigger.displayName)
                                 )
                             }

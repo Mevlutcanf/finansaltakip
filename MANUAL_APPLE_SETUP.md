@@ -53,8 +53,8 @@ Bu repodaki `MindSpend/` klasörü kaynak dosyaları içerir ama henüz bir
 
 - [ ] Yeni app kaydı (Bundle ID, isim, SKU).
 - [ ] Subscription group + premium ürün tanımı (fiyat, süre — aylık/yıllık).
-- [ ] App Review Notes: Family Controls / Screen Time API'nin neden
-      kullanıldığını açıklayan not (bkz. rehber madde 38).
+- [x] App Review Notes taslağı: `APP_REVIEW_NOTES.md` — App Store Connect'e
+      kopyalanmadan önce güncel App Review kurallarına göre gözden geçirin.
 - [ ] Privacy Nutrition Labels (toplanan veri: yok/aggregate, local-first).
 - [ ] TestFlight iç test grubu.
 
@@ -63,7 +63,12 @@ Bu repodaki `MindSpend/` klasörü kaynak dosyaları içerir ama henüz bir
 - [ ] RevenueCat hesabı, proje oluşturma.
 - [ ] App Store Connect API key bağlama.
 - [ ] Ürün/offering tanımlama (App Store Connect'teki subscription ile eşleşen).
-- [ ] Public SDK key'i `IAPService.swift` içine (veya CI secret'ına) ekleme.
+- [ ] Public SDK key'i alıp `MindSpendApp.swift` içinde
+      `RevenueCatIAPService.configure(apiKey:)` çağırma ve
+      `SubscriptionManager(service: RevenueCatIAPService())` ile
+      `LocalIAPService` yerine geçme (şu an varsayılan `LocalIAPService` —
+      kullanıcı her zaman free kalıyor, RevenueCat yapılandırılana kadar
+      uygulama sorunsuz çalışır).
 
 ## 5. CI/CD (Mac'iniz olmadığı için)
 

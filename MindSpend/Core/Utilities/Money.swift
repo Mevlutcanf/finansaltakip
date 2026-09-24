@@ -14,6 +14,12 @@ struct Money: Equatable, Comparable {
         Decimal(minorUnits) / 100
     }
 
+    /// Yalnızca grafik (Swift Charts `Plottable`) gibi `Double` gerektiren
+    /// yerlerde kullanılır; para hesaplamaları her zaman `minorUnits` üzerinden yapılır.
+    var doubleValue: Double {
+        Double(minorUnits) / 100
+    }
+
     var formatted: String {
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency
