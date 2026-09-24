@@ -39,7 +39,14 @@ targets:
     entitlements:
       path: MindSpend/App/MindSpend.entitlements
       properties:
-        com.apple.developer.family-controls: true
+        # NOT: com.apple.developer.family-controls entitlement'ı GEÇİCİ olarak
+        # kaldırıldı. Apple, bu entitlement'ı App Store dağıtımında (TestFlight
+        # dahil) kullanabilmek için ayrı bir "Family Controls Distribution"
+        # başvurusu/onayı istiyor (bkz. developer.apple.com/contact/request/
+        # family-controls-distribution). Onay gelene kadar Screen Time/Shield
+        # özellikleri olmadan, UI/UX testi için sade bir build TestFlight'a
+        # yükleniyor. Onay gelince bu satır ve aşağıdaki 3 extension dependency
+        # geri eklenecek.
         com.apple.security.application-groups:
           - group.com.anpause.app
     settings:
@@ -48,12 +55,6 @@ targets:
         TARGETED_DEVICE_FAMILY: "1"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
     dependencies:
-      - target: ShieldConfigurationExtension
-        embed: true
-      - target: ShieldActionExtension
-        embed: true
-      - target: DeviceActivityMonitorExtension
-        embed: true
       - package: RevenueCat
         product: RevenueCat
 
