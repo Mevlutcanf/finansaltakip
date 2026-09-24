@@ -25,12 +25,24 @@ targets:
       properties:
         UILaunchScreen: {}
         CFBundleDisplayName: MindSpend
+    entitlements:
+      path: MindSpend/App/MindSpend.entitlements
+      properties:
+        com.apple.developer.family-controls: true
+        com.apple.security.application-groups:
+          - group.com.mindspend.app
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.mindspend.app
         TARGETED_DEVICE_FAMILY: "1"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
-    dependencies: []
+    dependencies:
+      - target: ShieldConfigurationExtension
+        embed: true
+      - target: ShieldActionExtension
+        embed: true
+      - target: DeviceActivityMonitorExtension
+        embed: true
 
   MindSpendTests:
     type: bundle.unit-test
@@ -42,6 +54,63 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.mindspend.app.Tests
     dependencies:
       - target: MindSpend
+
+  ShieldConfigurationExtension:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: Extensions/ShieldConfiguration
+      - path: MindSpend/ScreenTime/Shared
+    info:
+      path: Extensions/ShieldConfiguration/Info.plist
+    entitlements:
+      path: Extensions/Shared.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.mindspend.app
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.mindspend.app.ShieldConfiguration
+        TARGETED_DEVICE_FAMILY: "1"
+        SKIP_INSTALL: NO
+
+  ShieldActionExtension:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: Extensions/ShieldAction
+      - path: MindSpend/ScreenTime/Shared
+    info:
+      path: Extensions/ShieldAction/Info.plist
+    entitlements:
+      path: Extensions/Shared.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.mindspend.app
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.mindspend.app.ShieldAction
+        TARGETED_DEVICE_FAMILY: "1"
+        SKIP_INSTALL: NO
+
+  DeviceActivityMonitorExtension:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: Extensions/DeviceActivityMonitor
+      - path: MindSpend/ScreenTime/Shared
+    info:
+      path: Extensions/DeviceActivityMonitor/Info.plist
+    entitlements:
+      path: Extensions/Shared.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.mindspend.app
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.mindspend.app.DeviceActivityMonitor
+        TARGETED_DEVICE_FAMILY: "1"
+        SKIP_INSTALL: NO
 
 schemes:
   MindSpend:
