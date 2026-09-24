@@ -1,0 +1,32 @@
+## Xcode
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
+xcuserdata/
+DerivedData/
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+## Swift Package Manager
+.build/
+.swiftpm/
+
+## CocoaPods (kullanılmıyor ama önlem)
+Pods/
+
+## Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/test_output
+
+## Secrets
+*.p12
+*.mobileprovision
+.env
+Secrets.swift
+
+## macOS
+.DS_Store
