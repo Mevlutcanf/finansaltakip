@@ -60,6 +60,25 @@ final class InsightsViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.triggerBreakdown.first?.total.minorUnits, 1200)
     }
 
+    func testCategoryBreakdownAggregatesAmountsPerCategory() {
+        let transactionRepo = FakeTransactionRepository()
+        transactionRepo.items = [
+            Transaction(amountMinorUnits: 800, category: .food, emotion: .neutral),
+            Transaction(amountMinorUnits: 200, category: .food, emotion: .stress),
+            Transaction(amountMinorUnits: 3000, category: .electronics, emotion: .excitement)
+        ]
+
+        let viewModel = InsightsViewModel(
+            transactionRepository: transactionRepo,
+            avoidedPurchaseRepository: FakeAvoidedPurchaseRepository()
+        )
+        viewModel.refresh()
+
+        XCTAssertEqual(viewModel.categoryBreakdown.first?.category, .electronics)
+        XCTAssertEqual(viewModel.categoryBreakdown.first?.total.minorUnits, 3000)
+        XCTAssertEqual(viewModel.categoryBreakdown.last?.total.minorUnits, 1000)
+    }
+
     func testAvoidedTotalOnlyCountsAvoidedStatus() {
         let avoidedRepo = FakeAvoidedPurchaseRepository()
         avoidedRepo.items = [

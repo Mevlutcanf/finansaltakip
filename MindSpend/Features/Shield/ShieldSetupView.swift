@@ -1,6 +1,7 @@
 import SwiftUI
 import SwiftData
 import FamilyControls
+import UIKit
 
 /// Launch stratejisi (rehber gözden geçirme, 2026-09): uygulama önce
 /// tamamen ücretsiz yayınlanıp gerçek kullanıcı davranışı doğrulanacak,
@@ -17,9 +18,14 @@ struct ShieldSetupView: View {
     var body: some View {
         List {
             if authService.status != .approved {
-                AuthorizationStatusView(status: authService.status) {
+                AuthorizationStatusView(
+                    status: authService.status,
+                    errorMessage: authService.lastErrorMessage
+                ) {
                     Task { await authService.requestAuthorization() }
                 }
+                .listRowSeparator(.hidden)
+                .listRowBackground(Color.clear)
             }
 
             if rules.isEmpty {
@@ -28,6 +34,7 @@ struct ShieldSetupView: View {
                     systemImage: "shield",
                     description: Text("Alışveriş uygulamalarına veya sitelerine cooldown eklemek için bir kural oluştur.")
                 )
+                .listRowSeparator(.hidden)
             } else {
                 ForEach(rules) { rule in
                     ShieldRuleRow(
@@ -36,6 +43,8 @@ struct ShieldSetupView: View {
                         isAuthorized: authService.status == .approved,
                         onActivate: { duration in activateShield(rule: rule, duration: duration) }
                     )
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
                 }
                 .onDelete(perform: deleteRules)
             }
@@ -44,8 +53,11 @@ struct ShieldSetupView: View {
                 Text(activationError)
                     .font(.caption)
                     .foregroundStyle(.red)
+                    .listRowSeparator(.hidden)
             }
         }
+        .listStyle(.plain)
+        .background(Color(.systemGroupedBackground).ignoresSafeArea())
         .navigationTitle("Kalkan")
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
@@ -93,7 +105,7 @@ private struct ShieldRuleRow: View {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(rule.name)
-                        .font(.subheadline.weight(.medium))
+                        .font(.subheadline.weight(.semibold))
                     Text("Varsayılan cooldown: \(rule.defaultCooldownMinutes) dk")
                         .font(.caption)
                         .foregroundStyle(.secondary)
@@ -102,7 +114,8 @@ private struct ShieldRuleRow: View {
                 if isActive {
                     Label("Aktif", systemImage: "shield.fill")
                         .font(.caption.weight(.semibold))
-                        .foregroundStyle(.orange)
+                        .foregroundStyle(Theme.ember)
+                        .symbolEffect(.pulse)
                 }
             }
 
@@ -112,10 +125,12 @@ private struct ShieldRuleRow: View {
                         Button(duration.displayName) { onActivate(duration) }
                     }
                 }
-                .font(.caption.weight(.medium))
+                .font(.caption.weight(.semibold))
                 .buttonStyle(.bordered)
+                .tint(Theme.accent)
             }
         }
+        .premiumCard()
         .padding(.vertical, 4)
     }
 }

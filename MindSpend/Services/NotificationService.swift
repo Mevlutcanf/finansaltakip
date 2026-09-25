@@ -74,4 +74,8 @@ final class NotificationService {
         let request = UNNotificationRequest(identifier: "weekly-reflection", content: content, trigger: trigger)
         UNUserNotificationCenter.current().add(request)
     }
+
+    func cancelWeeklyReflection() {
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: ["weekly-reflection"])
+    }
 }

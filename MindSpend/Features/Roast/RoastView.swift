@@ -4,6 +4,7 @@ import UIKit
 
 struct RoastView: View {
     @Environment(\.modelContext) private var modelContext
+    @AppStorage("defaultRoastTone") private var defaultRoastToneRaw = RoastTone.balanced.rawValue
     @State private var viewModel: RoastViewModel?
     @State private var tone: RoastTone = .balanced
     @State private var shareCardURL: URL?
@@ -11,6 +12,8 @@ struct RoastView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
+                introCard
+
                 Picker("Ton", selection: $tone) {
                     ForEach(RoastTone.allCases) { tone in
                         Text(tone.displayName).tag(tone)
@@ -52,6 +55,7 @@ struct RoastView: View {
         }
         .onAppear {
             if viewModel == nil {
+                tone = RoastTone(rawValue: defaultRoastToneRaw) ?? .balanced
                 viewModel = RoastViewModel(
                     transactionRepository: TransactionRepository(context: modelContext),
                     avoidedPurchaseRepository: AvoidedPurchaseRepository(context: modelContext)
@@ -59,6 +63,20 @@ struct RoastView: View {
                 Task { await viewModel?.generate(tone: tone) }
             }
         }
+    }
+
+    private var introCard: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("Bu ne işe yarar?")
+                .font(.caption.weight(.bold))
+                .foregroundStyle(Theme.accent)
+            Text("Bu ayki gerçek harcama verilerinden (kategori, duygu, tetikleyici, vazgeçtiğin alışverişler) eğlenceli bir özet üretir. Uydurma sayı kullanmaz. Sonucu paylaşabilirsin.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(12)
+        .background(Theme.accent.opacity(0.08), in: RoundedRectangle(cornerRadius: 12))
     }
 }
 

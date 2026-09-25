@@ -14,6 +14,12 @@ struct TriggerSpend: Identifiable {
     let total: Money
 }
 
+struct CategorySpend: Identifiable {
+    var id: SpendingCategory { category }
+    let category: SpendingCategory
+    let total: Money
+}
+
 struct BehaviorCycleStage: Identifiable {
     let id: Int
     let title: String
@@ -24,6 +30,7 @@ struct BehaviorCycleStage: Identifiable {
 final class InsightsViewModel {
     private(set) var emotionBreakdown: [EmotionSpend] = []
     private(set) var triggerBreakdown: [TriggerSpend] = []
+    private(set) var categoryBreakdown: [CategorySpend] = []
     private(set) var avoidedCount: Int = 0
     private(set) var avoidedTotal: Money = .zero
     private(set) var behaviorCycle: [BehaviorCycleStage] = []
@@ -41,9 +48,11 @@ final class InsightsViewModel {
 
         var emotionTotals: [Emotion: Int64] = [:]
         var triggerTotals: [SpendingTrigger: Int64] = [:]
+        var categoryTotals: [SpendingCategory: Int64] = [:]
 
         for transaction in transactions {
             emotionTotals[transaction.emotion, default: 0] += transaction.amountMinorUnits
+            categoryTotals[transaction.category, default: 0] += transaction.amountMinorUnits
             if let trigger = transaction.trigger {
                 triggerTotals[trigger, default: 0] += transaction.amountMinorUnits
             }
@@ -55,6 +64,10 @@ final class InsightsViewModel {
 
         triggerBreakdown = triggerTotals
             .map { TriggerSpend(trigger: $0.key, total: Money(minorUnits: $0.value)) }
+            .sorted { $0.total.minorUnits > $1.total.minorUnits }
+
+        categoryBreakdown = categoryTotals
+            .map { CategorySpend(category: $0.key, total: Money(minorUnits: $0.value)) }
             .sorted { $0.total.minorUnits > $1.total.minorUnits }
 
         if let avoided = try? avoidedPurchaseRepository.fetchAll() {

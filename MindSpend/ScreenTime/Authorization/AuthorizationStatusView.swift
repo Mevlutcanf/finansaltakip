@@ -2,6 +2,7 @@ import SwiftUI
 
 struct AuthorizationStatusView: View {
     let status: ScreenTimeAuthorizationStatus
+    let errorMessage: String?
     let onRequest: () -> Void
 
     var body: some View {
@@ -11,21 +12,25 @@ struct AuthorizationStatusView: View {
                 Text("Kalkanı kullanmak için ekran süresi izni gerekiyor.")
                     .font(.subheadline)
                 Button("İzin Ver", action: onRequest)
-                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(PrimaryButtonStyle())
+
+                if let errorMessage {
+                    Text(errorMessage)
+                        .font(.caption)
+                        .foregroundStyle(.orange)
+                }
             }
-            .padding()
-            .background(.secondary.opacity(0.08), in: RoundedRectangle(cornerRadius: 12))
+            .premiumCard()
 
         case .denied:
             VStack(alignment: .leading, spacing: 8) {
                 Label("İzin reddedildi", systemImage: "exclamationmark.triangle")
                     .foregroundStyle(.orange)
-                Text("Kalkanı kullanmak için Ayarlar > Ekran Süresi'nden MindSpend'e izin verebilirsin.")
+                Text("Kalkanı kullanmak için Ayarlar > Ekran Süresi'nden AnPause'a izin verebilirsin.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
-            .padding()
-            .background(.orange.opacity(0.08), in: RoundedRectangle(cornerRadius: 12))
+            .premiumCard()
 
         case .approved:
             EmptyView()

@@ -3,6 +3,10 @@ import SwiftData
 import Charts
 import UIKit
 
+private let categoryPalette: [Color] = [
+    Theme.accent, Theme.ember, .teal, .pink, .indigo, .mint, .brown
+]
+
 struct InsightsView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var viewModel: InsightsViewModel?
@@ -11,7 +15,17 @@ struct InsightsView: View {
         ScrollView {
             if let viewModel {
                 VStack(alignment: .leading, spacing: 24) {
-                    section(title: "Duygu → Harcama") {
+                    heroSection(viewModel: viewModel)
+
+                    section(title: "Kategoriye Göre Harcama", icon: "chart.pie.fill") {
+                        if viewModel.categoryBreakdown.isEmpty {
+                            emptyState
+                        } else {
+                            categoryDonut(viewModel: viewModel)
+                        }
+                    }
+
+                    section(title: "Duygu → Harcama", icon: "heart.text.square.fill") {
                         if viewModel.emotionBreakdown.isEmpty {
                             emptyState
                         } else {
@@ -27,7 +41,7 @@ struct InsightsView: View {
                         }
                     }
 
-                    section(title: "Tetikleyici → Harcama") {
+                    section(title: "Tetikleyici → Harcama", icon: "bolt.fill") {
                         if viewModel.triggerBreakdown.isEmpty {
                             emptyState
                         } else {
@@ -43,17 +57,24 @@ struct InsightsView: View {
                         }
                     }
 
-                    section(title: "Kaçınılan Harcama") {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("\(viewModel.avoidedCount) alışverişten vazgeçildi")
-                            Text("Toplam: \(viewModel.avoidedTotal.formatted)")
-                                .font(.title3.bold())
-                                .foregroundStyle(Theme.accent)
+                    section(title: "Kaçınılan Harcama", icon: "hand.raised.fill") {
+                        HStack {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("\(viewModel.avoidedCount) alışverişten vazgeçildi")
+                                    .font(.subheadline)
+                                Text(viewModel.avoidedTotal.formatted)
+                                    .font(.title2.bold())
+                                    .foregroundStyle(Theme.accent)
+                            }
+                            Spacer()
+                            Image(systemName: "sparkles")
+                                .font(.largeTitle)
+                                .foregroundStyle(Theme.accent.opacity(0.3))
                         }
                         .premiumCard()
                     }
 
-                    section(title: "Davranış Döngüsü") {
+                    section(title: "Davranış Döngüsü", icon: "arrow.triangle.2.circlepath") {
                         if viewModel.behaviorCycle.allSatisfy({ $0.count == 0 }) {
                             emptyState
                         } else {
@@ -63,6 +84,7 @@ struct InsightsView: View {
                                     y: .value("Aşama", stage.title)
                                 )
                                 .foregroundStyle(by: .value("Aşama", stage.title))
+                                .cornerRadius(6)
                             }
                             .frame(height: CGFloat(viewModel.behaviorCycle.count) * 44 + 20)
                             .chartLegend(.hidden)
@@ -89,6 +111,60 @@ struct InsightsView: View {
         }
     }
 
+    @ViewBuilder
+    private func heroSection(viewModel: InsightsViewModel) -> some View {
+        let totalSpend = viewModel.categoryBreakdown.reduce(Int64(0)) { $0 + $1.total.minorUnits }
+        VStack(alignment: .leading, spacing: 6) {
+            Text("Toplam kayıtlı harcama")
+                .font(.caption)
+                .foregroundStyle(.white.opacity(0.75))
+            Text(Money(minorUnits: totalSpend).formatted)
+                .font(.system(size: 34, weight: .bold))
+                .foregroundStyle(.white)
+            Text("Neye, ne zaman ve neden harcadığını görmek davranışını değiştirmenin ilk adımı.")
+                .font(.caption)
+                .foregroundStyle(.white.opacity(0.75))
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(20)
+        .background(Theme.backgroundGradient, in: RoundedRectangle(cornerRadius: Theme.cardCornerRadius, style: .continuous))
+    }
+
+    @ViewBuilder
+    private func categoryDonut(viewModel: InsightsViewModel) -> some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Chart(Array(viewModel.categoryBreakdown.enumerated()), id: \.element.id) { index, item in
+                SectorMark(
+                    angle: .value("Tutar", item.total.doubleValue),
+                    innerRadius: .ratio(0.6),
+                    angularInset: 1.5
+                )
+                .foregroundStyle(categoryPalette[index % categoryPalette.count])
+                .cornerRadius(4)
+            }
+            .frame(height: 200)
+
+            VStack(alignment: .leading, spacing: 10) {
+                ForEach(Array(viewModel.categoryBreakdown.enumerated()), id: \.element.id) { index, item in
+                    HStack {
+                        Circle()
+                            .fill(categoryPalette[index % categoryPalette.count])
+                            .frame(width: 10, height: 10)
+                        Image(systemName: item.category.symbolName)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Text(item.category.displayName)
+                            .font(.subheadline)
+                        Spacer()
+                        Text(item.total.formatted)
+                            .font(.subheadline.weight(.semibold))
+                    }
+                }
+            }
+        }
+        .premiumCard()
+    }
+
     private var emptyState: some View {
         Text("Yeterli veri yok.")
             .foregroundStyle(.secondary)
@@ -96,10 +172,11 @@ struct InsightsView: View {
     }
 
     @ViewBuilder
-    private func section<Content: View>(title: String, @ViewBuilder content: () -> Content) -> some View {
+    private func section<Content: View>(title: String, icon: String, @ViewBuilder content: () -> Content) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(title)
+            Label(title, systemImage: icon)
                 .font(.headline)
+                .foregroundStyle(.primary)
             content()
         }
     }

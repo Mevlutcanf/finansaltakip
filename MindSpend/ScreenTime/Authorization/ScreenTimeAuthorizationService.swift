@@ -11,6 +11,7 @@ import Observation
 @Observable
 final class ScreenTimeAuthorizationService {
     private(set) var status: ScreenTimeAuthorizationStatus = .notDetermined
+    private(set) var lastErrorMessage: String?
 
     private let center = AuthorizationCenter.shared
 
@@ -33,12 +34,18 @@ final class ScreenTimeAuthorizationService {
 
     @MainActor
     func requestAuthorization() async {
+        lastErrorMessage = nil
         do {
             try await center.requestAuthorization(for: .individual)
             refreshStatus()
+            if status != .approved {
+                // Sistem hata fırlatmadı ama onay da vermedi; bu genellikle
+                // cihaz/hesap Screen Time'ı desteklemiyor demektir.
+                lastErrorMessage = "İzin isteği tamamlanamadı. Cihazının Ekran Süresi özelliğini desteklediğinden emin ol."
+            }
         } catch {
-            // Kullanıcı reddetti veya sistem hatası; UI "denied" durumunu göstermeli.
             refreshStatus()
+            lastErrorMessage = "Bu özellik şu anda kullanılamıyor (\(error.localizedDescription)). Uygulama Apple'ın Ekran Süresi iznini henüz alamadı — bu, geliştiricinin tamamlaması gereken ayrı bir Apple onay süreci."
         }
     }
 }

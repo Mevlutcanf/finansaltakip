@@ -7,40 +7,32 @@ struct DashboardView: View {
     @State private var viewModel: DashboardViewModel?
     @State private var showAddTransaction = false
     @State private var showPrePurchaseCheck = false
+    @State private var showQuickActions = false
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                if let viewModel {
-                    weeklyChallengeSection(viewModel: viewModel)
-                    behavioralSummarySection(viewModel: viewModel)
-                    streakSection(viewModel: viewModel)
-                    summaryCards(viewModel: viewModel)
-                    activeShieldSection(viewModel: viewModel)
-                    recentTransactionsSection(viewModel: viewModel)
-                    NavigationLink {
-                        RoastView()
-                    } label: {
-                        Label("Roast My Wallet", systemImage: "flame")
-                            .symbolEffect(.pulse)
+        ZStack(alignment: .bottomTrailing) {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 20) {
+                    if let viewModel {
+                        weeklyChallengeSection(viewModel: viewModel)
+                        behavioralSummarySection(viewModel: viewModel)
+                        streakSection(viewModel: viewModel)
+                        summaryCards(viewModel: viewModel)
+                        activeShieldSection(viewModel: viewModel)
+                        recentTransactionsSection(viewModel: viewModel)
+                        roastEntryCard
                     }
-                    .buttonStyle(PressableButtonStyle())
                 }
+                .padding()
+                .padding(.bottom, 70)
+                .animation(.easeOut(duration: 0.35), value: viewModel == nil)
             }
-            .padding()
-            .animation(.easeOut(duration: 0.35), value: viewModel == nil)
+            .background(Color(.systemGroupedBackground).ignoresSafeArea())
+
+            quickActionButton
         }
-        .background(Color(.systemGroupedBackground).ignoresSafeArea())
         .navigationTitle("AnPause")
         .toolbar {
-            ToolbarItem(placement: .primaryAction) {
-                Menu {
-                    Button("Harcama Kaydet") { showAddTransaction = true }
-                    Button("Alışveriş İsteği") { showPrePurchaseCheck = true }
-                } label: {
-                    Label("Yeni", systemImage: "plus.circle.fill")
-                }
-            }
             ToolbarItem(placement: .topBarLeading) {
                 NavigationLink {
                     SettingsView()
@@ -67,6 +59,72 @@ struct DashboardView: View {
             viewModel?.refresh()
         }
     }
+
+    // MARK: - Floating quick-action button
+
+    private var quickActionButton: some View {
+        VStack(alignment: .trailing, spacing: 14) {
+            if showQuickActions {
+                quickActionRow(title: "Alışveriş İsteği", systemImage: "hourglass") {
+                    showPrePurchaseCheck = true
+                    collapseQuickActions()
+                }
+                quickActionRow(title: "Harcama Kaydet", systemImage: "creditcard") {
+                    showAddTransaction = true
+                    collapseQuickActions()
+                }
+                .transition(.scale.combined(with: .opacity))
+            }
+
+            Button {
+                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
+                    showQuickActions.toggle()
+                }
+            } label: {
+                Image(systemName: "plus")
+                    .font(.title2.weight(.bold))
+                    .foregroundStyle(.white)
+                    .frame(width: 60, height: 60)
+                    .background(
+                        LinearGradient(colors: [Theme.accent, Theme.accentDeep], startPoint: .topLeading, endPoint: .bottomTrailing),
+                        in: Circle()
+                    )
+                    .shadow(color: Theme.accent.opacity(0.5), radius: 16, x: 0, y: 8)
+                    .rotationEffect(.degrees(showQuickActions ? 45 : 0))
+            }
+        }
+        .padding(.trailing, 20)
+        .padding(.bottom, 20)
+    }
+
+    private func quickActionRow(title: String, systemImage: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 10) {
+                Text(title)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.primary)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 8)
+                    .background(.regularMaterial, in: Capsule())
+                    .shadow(color: .black.opacity(0.1), radius: 6, x: 0, y: 3)
+
+                Image(systemName: systemImage)
+                    .font(.headline)
+                    .foregroundStyle(.white)
+                    .frame(width: 44, height: 44)
+                    .background(Theme.accent, in: Circle())
+            }
+        }
+    }
+
+    private func collapseQuickActions() {
+        withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
+            showQuickActions = false
+        }
+    }
+
+    // MARK: - Sections
 
     @ViewBuilder
     private func weeklyChallengeSection(viewModel: DashboardViewModel) -> some View {
@@ -97,38 +155,43 @@ struct DashboardView: View {
 
     /// Rehber madde 2: ana metrik "ne kadar harcadım" değil "neden ve ne
     /// sıklıkla dürtü yaşıyorum" olmalı — bu yüzden bu bölüm para kartlarının
-    /// önünde, en üstte gösterilir.
+    /// önünde, en üstte gösterilir. Kartlar Analiz ekranına götürür.
     @ViewBuilder
     private func behavioralSummarySection(viewModel: DashboardViewModel) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Bu Ayki Davranışın")
-                .font(.headline)
+        NavigationLink {
+            InsightsView()
+        } label: {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Text("Bu Ayki Davranışın")
+                        .font(.headline)
+                        .foregroundStyle(.primary)
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(.secondary)
+                }
 
-            HStack(spacing: 12) {
-                SummaryCard(
-                    title: "Kaydedilen dürtü",
-                    value: "\(viewModel.behavioralMetrics.impulseCount)",
-                    symbolName: "bolt.heart"
-                )
-                SummaryCard(
-                    title: "Başlatılan cooldown",
-                    value: "\(viewModel.behavioralMetrics.cooldownsStarted)",
-                    symbolName: "hourglass"
-                )
+                HStack(spacing: 12) {
+                    MiniStat(title: "Kaydedilen dürtü", value: "\(viewModel.behavioralMetrics.impulseCount)", symbolName: "bolt.heart")
+                    MiniStat(title: "Başlatılan cooldown", value: "\(viewModel.behavioralMetrics.cooldownsStarted)", symbolName: "hourglass")
+                }
+                HStack(spacing: 12) {
+                    MiniStat(
+                        title: "En sık duygu",
+                        value: viewModel.behavioralMetrics.topEmotion?.displayName ?? "—",
+                        symbolName: viewModel.behavioralMetrics.topEmotion?.symbolName ?? "circle"
+                    )
+                    MiniStat(
+                        title: "En sık tetikleyici",
+                        value: viewModel.behavioralMetrics.topTrigger?.displayName ?? "—",
+                        symbolName: viewModel.behavioralMetrics.topTrigger?.symbolName ?? "questionmark.circle"
+                    )
+                }
             }
-            HStack(spacing: 12) {
-                SummaryCard(
-                    title: "En sık duygu",
-                    value: viewModel.behavioralMetrics.topEmotion?.displayName ?? "—",
-                    symbolName: viewModel.behavioralMetrics.topEmotion?.symbolName ?? "circle"
-                )
-                SummaryCard(
-                    title: "En sık tetikleyici",
-                    value: viewModel.behavioralMetrics.topTrigger?.displayName ?? "—",
-                    symbolName: viewModel.behavioralMetrics.topTrigger?.symbolName ?? "questionmark.circle"
-                )
-            }
+            .premiumCard()
         }
+        .buttonStyle(PressableButtonStyle())
     }
 
     @ViewBuilder
@@ -161,22 +224,39 @@ struct DashboardView: View {
     @ViewBuilder
     private func summaryCards(viewModel: DashboardViewModel) -> some View {
         VStack(spacing: 12) {
-            SummaryCard(
-                title: "Bu ay harcama",
-                value: viewModel.monthlySpend.formatted,
-                symbolName: "creditcard"
-            )
+            NavigationLink {
+                HistoryView()
+            } label: {
+                SummaryCard(
+                    title: "Bu ay harcama",
+                    value: viewModel.monthlySpend.formatted,
+                    symbolName: "creditcard"
+                )
+            }
+            .buttonStyle(PressableButtonStyle())
+
             HStack(spacing: 12) {
-                SummaryCard(
-                    title: "Kaçınılan alışveriş",
-                    value: "\(viewModel.avoidedCount)",
-                    symbolName: "hand.raised"
-                )
-                SummaryCard(
-                    title: "Kaçınılan tutar",
-                    value: viewModel.avoidedPotential.formatted,
-                    symbolName: "banknote"
-                )
+                NavigationLink {
+                    AvoidedPurchasesView()
+                } label: {
+                    SummaryCard(
+                        title: "Kaçınılan alışveriş",
+                        value: "\(viewModel.avoidedCount)",
+                        symbolName: "hand.raised"
+                    )
+                }
+                .buttonStyle(PressableButtonStyle())
+
+                NavigationLink {
+                    AvoidedPurchasesView()
+                } label: {
+                    SummaryCard(
+                        title: "Kaçınılan tutar",
+                        value: viewModel.avoidedPotential.formatted,
+                        symbolName: "banknote"
+                    )
+                }
+                .buttonStyle(PressableButtonStyle())
             }
         }
     }
@@ -205,19 +285,80 @@ struct DashboardView: View {
     @ViewBuilder
     private func recentTransactionsSection(viewModel: DashboardViewModel) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Son İşlemler")
-                .font(.headline)
+            HStack {
+                Text("Son İşlemler")
+                    .font(.headline)
+                Spacer()
+                NavigationLink("Tümünü Gör") {
+                    HistoryView()
+                }
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(Theme.accent)
+            }
 
             if viewModel.recentTransactions.isEmpty {
                 Text("Henüz kayıtlı işlem yok.")
                     .foregroundStyle(.secondary)
                     .font(.subheadline)
             } else {
-                ForEach(viewModel.recentTransactions) { transaction in
-                    TransactionRow(transaction: transaction)
+                VStack(spacing: 4) {
+                    ForEach(viewModel.recentTransactions) { transaction in
+                        TransactionRow(transaction: transaction)
+                    }
                 }
+                .premiumCard()
             }
         }
+    }
+
+    private var roastEntryCard: some View {
+        NavigationLink {
+            RoastView()
+        } label: {
+            HStack(spacing: 16) {
+                Image(systemName: "flame.fill")
+                    .font(.title)
+                    .foregroundStyle(Theme.ember)
+                    .symbolEffect(.pulse)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Roast My Wallet")
+                        .font(.subheadline.weight(.bold))
+                        .foregroundStyle(.primary)
+                    Text("Bu ayki harcama davranışının eğlenceli, gerçek verilerle özeti — paylaşılabilir.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(.secondary)
+            }
+            .premiumCard()
+        }
+        .buttonStyle(PressableButtonStyle())
+    }
+}
+
+private struct MiniStat: View {
+    let title: String
+    let value: String
+    let symbolName: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Image(systemName: symbolName)
+                .font(.caption)
+                .foregroundStyle(Theme.accent)
+            Text(value)
+                .font(.subheadline.bold())
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+            Text(title)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
@@ -233,6 +374,7 @@ private struct SummaryCard: View {
                 .foregroundStyle(Theme.accent)
             Text(value)
                 .font(.title3.bold())
+                .foregroundStyle(.primary)
                 .contentTransition(.numericText())
             Text(title)
                 .font(.caption)
