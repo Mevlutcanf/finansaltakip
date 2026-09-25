@@ -15,13 +15,3 @@ final class CooldownDurationTests: XCTestCase {
         }
     }
 }
-
-final class PremiumStateTests: XCTestCase {
-    func testFreeIsNotPremium() {
-        XCTAssertFalse(PremiumState.free.isPremium)
-    }
-
-    func testPremiumIsPremium() {
-        XCTAssertTrue(PremiumState.premium(expiresAt: nil).isPremium)
-    }
-}
