@@ -13,33 +13,44 @@ struct OnboardingView: View {
     ]
 
     var body: some View {
-        VStack {
-            TabView(selection: $pageIndex) {
-                ForEach(pages.indices, id: \.self) { index in
-                    OnboardingPageView(page: pages[index])
-                        .tag(index)
-                }
-            }
-            .tabViewStyle(.page)
+        ZStack {
+            Theme.backgroundGradient.ignoresSafeArea()
 
-            if pageIndex == pages.count - 1 {
-                Button("İlk Kalkanını Oluştur") {
-                    onFinish()
+            VStack {
+                TabView(selection: $pageIndex) {
+                    ForEach(pages.indices, id: \.self) { index in
+                        OnboardingPageView(page: pages[index])
+                            .tag(index)
+                    }
                 }
-                .buttonStyle(.borderedProminent)
-                .padding()
-            } else {
-                Button("Devam Et") {
-                    withAnimation { pageIndex += 1 }
-                }
-                .buttonStyle(.bordered)
-                .padding()
-            }
+                .tabViewStyle(.page)
+                .animation(.easeInOut, value: pageIndex)
 
-            Button("Atla") { onFinish() }
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .padding(.bottom)
+                if pageIndex == pages.count - 1 {
+                    Button("İlk Kalkanını Oluştur") {
+                        onFinish()
+                    }
+                    .buttonStyle(PrimaryButtonStyle())
+                    .padding(.horizontal, 32)
+                    .padding(.bottom, 8)
+                    .transition(.opacity.combined(with: .move(edge: .bottom)))
+                } else {
+                    Button("Devam Et") {
+                        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                            pageIndex += 1
+                        }
+                    }
+                    .buttonStyle(PrimaryButtonStyle())
+                    .padding(.horizontal, 32)
+                    .padding(.bottom, 8)
+                }
+
+                Button("Atla") { onFinish() }
+                    .font(.caption)
+                    .foregroundStyle(.white.opacity(0.6))
+                    .padding(.bottom)
+            }
+            .animation(.spring(response: 0.4, dampingFraction: 0.8), value: pageIndex)
         }
     }
 }
@@ -51,17 +62,34 @@ private struct OnboardingPage {
 
 private struct OnboardingPageView: View {
     let page: OnboardingPage
+    @State private var isPulsing = false
 
     var body: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: 28) {
             Spacer()
-            Image(systemName: page.symbol)
-                .font(.system(size: 64))
-                .foregroundStyle(.tint)
+
+            ZStack {
+                Circle()
+                    .fill(Theme.accent.opacity(0.18))
+                    .frame(width: 160, height: 160)
+                    .scaleEffect(isPulsing ? 1.08 : 0.92)
+
+                Image(systemName: page.symbol)
+                    .font(.system(size: 56, weight: .semibold))
+                    .foregroundStyle(.white)
+            }
+            .onAppear {
+                withAnimation(.easeInOut(duration: 1.8).repeatForever(autoreverses: true)) {
+                    isPulsing = true
+                }
+            }
+
             Text(page.title)
                 .font(.title2.bold())
+                .foregroundStyle(.white)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 32)
+
             Spacer()
         }
     }

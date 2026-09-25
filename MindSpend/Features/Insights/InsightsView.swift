@@ -1,6 +1,7 @@
 import SwiftUI
 import SwiftData
 import Charts
+import UIKit
 
 struct InsightsView: View {
     @Environment(\.modelContext) private var modelContext
@@ -19,6 +20,8 @@ struct InsightsView: View {
                                     x: .value("Tutar", item.total.doubleValue),
                                     y: .value("Duygu", item.emotion.displayName)
                                 )
+                                .foregroundStyle(Theme.accent.gradient)
+                                .cornerRadius(6)
                             }
                             .frame(height: CGFloat(viewModel.emotionBreakdown.count) * 40 + 20)
                         }
@@ -33,6 +36,8 @@ struct InsightsView: View {
                                     x: .value("Tutar", item.total.doubleValue),
                                     y: .value("Tetikleyici", item.trigger.displayName)
                                 )
+                                .foregroundStyle(Theme.ember.gradient)
+                                .cornerRadius(6)
                             }
                             .frame(height: CGFloat(viewModel.triggerBreakdown.count) * 40 + 20)
                         }
@@ -43,7 +48,9 @@ struct InsightsView: View {
                             Text("\(viewModel.avoidedCount) alışverişten vazgeçildi")
                             Text("Toplam: \(viewModel.avoidedTotal.formatted)")
                                 .font(.title3.bold())
+                                .foregroundStyle(Theme.accent)
                         }
+                        .premiumCard()
                     }
 
                     section(title: "Davranış Döngüsü") {
@@ -69,6 +76,7 @@ struct InsightsView: View {
                 .padding()
             }
         }
+        .background(Color(.systemGroupedBackground).ignoresSafeArea())
         .navigationTitle("Analiz")
         .onAppear {
             if viewModel == nil {

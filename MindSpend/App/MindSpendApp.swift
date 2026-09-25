@@ -9,6 +9,7 @@ struct MindSpendApp: App {
     var body: some Scene {
         WindowGroup {
             RootTabView()
+                .tint(Theme.accent)
                 .environment(subscriptionManager)
                 .task { await subscriptionManager.refresh() }
         }

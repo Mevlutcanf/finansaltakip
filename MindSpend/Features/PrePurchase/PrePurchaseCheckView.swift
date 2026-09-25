@@ -1,7 +1,8 @@
 import SwiftUI
 import SwiftData
+import UIKit
 
-private enum PrePurchaseStep {
+private enum PrePurchaseStep: Int {
     case intro
     case amount
     case emotion
@@ -22,18 +23,25 @@ struct PrePurchaseCheckView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 24) {
-                switch step {
-                case .intro:
-                    introStep
-                case .amount:
-                    amountStep
-                case .emotion:
-                    emotionStep
-                case .trigger:
-                    triggerStep
-                case .decision:
-                    decisionStep
+                Group {
+                    switch step {
+                    case .intro:
+                        introStep
+                    case .amount:
+                        amountStep
+                    case .emotion:
+                        emotionStep
+                    case .trigger:
+                        triggerStep
+                    case .decision:
+                        decisionStep
+                    }
                 }
+                .id(step)
+                .transition(.asymmetric(
+                    insertion: .move(edge: .trailing).combined(with: .opacity),
+                    removal: .move(edge: .leading).combined(with: .opacity)
+                ))
                 Spacer()
             }
             .padding()
@@ -46,14 +54,22 @@ struct PrePurchaseCheckView: View {
         }
     }
 
+    private func advance(to nextStep: PrePurchaseStep) {
+        UISelectionFeedbackGenerator().selectionChanged()
+        SoundService.shared.play(.tick)
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
+            step = nextStep
+        }
+    }
+
     private var introStep: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Bunu şimdi gerçekten almak istiyor musun?")
                 .font(.title2.bold())
             Text("Birkaç kısa soru, kararını netleştirmene yardımcı olacak.")
                 .foregroundStyle(.secondary)
-            Button("Devam Et") { step = .amount }
-                .buttonStyle(.borderedProminent)
+            Button("Devam Et") { advance(to: .amount) }
+                .buttonStyle(PrimaryButtonStyle())
         }
     }
 
@@ -66,8 +82,8 @@ struct PrePurchaseCheckView: View {
             TextField("Tutar", text: $amountText)
                 .keyboardType(.decimalPad)
                 .textFieldStyle(.roundedBorder)
-            Button("Devam Et") { step = .emotion }
-                .buttonStyle(.borderedProminent)
+            Button("Devam Et") { advance(to: .emotion) }
+                .buttonStyle(PrimaryButtonStyle(isDisabled: parsedAmountMinorUnits == nil))
                 .disabled(parsedAmountMinorUnits == nil)
         }
     }
@@ -79,8 +95,8 @@ struct PrePurchaseCheckView: View {
             ChipGrid(items: Emotion.allCases, selection: $emotion) { item in
                 Label(item.displayName, systemImage: item.symbolName)
             }
-            Button("Devam Et") { step = .trigger }
-                .buttonStyle(.borderedProminent)
+            Button("Devam Et") { advance(to: .trigger) }
+                .buttonStyle(PrimaryButtonStyle())
         }
     }
 
@@ -91,8 +107,8 @@ struct PrePurchaseCheckView: View {
             ChipGrid(items: SpendingTrigger.allCases, selection: $trigger) { item in
                 Label(item.displayName, systemImage: item.symbolName)
             }
-            Button("Devam Et") { step = .decision }
-                .buttonStyle(.borderedProminent)
+            Button("Devam Et") { advance(to: .decision) }
+                .buttonStyle(PrimaryButtonStyle())
         }
     }
 
@@ -110,9 +126,11 @@ struct PrePurchaseCheckView: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
 
-            ForEach(CooldownDuration.allCases) { duration in
-                Button(duration.displayName) { saveAvoided(duration: duration) }
-                    .buttonStyle(.borderedProminent)
+            VStack(spacing: 10) {
+                ForEach(CooldownDuration.allCases) { duration in
+                    Button(duration.displayName) { saveAvoided(duration: duration) }
+                        .buttonStyle(PrimaryButtonStyle())
+                }
             }
         }
     }
@@ -151,6 +169,7 @@ struct PrePurchaseCheckView: View {
         try? AvoidedPurchaseRepository(context: modelContext).add(pending)
         NotificationService.shared.scheduleCooldownExpiringSoon(for: pending)
         NotificationService.shared.scheduleCooldownExpired(for: pending)
+        UINotificationFeedbackGenerator().notificationOccurred(.success)
         dismiss()
     }
 }

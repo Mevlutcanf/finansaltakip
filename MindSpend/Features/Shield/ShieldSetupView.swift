@@ -74,6 +74,7 @@ struct ShieldSetupView: View {
         let service = ShieldService(sessionRepository: ShieldSessionRepository(context: modelContext))
         do {
             try service.activateShield(for: rule, duration: duration, reason: nil)
+            SoundService.shared.play(.shieldActivate)
             activationError = nil
         } catch {
             activationError = "Kalkan etkinleştirilemedi. Lütfen tekrar dene."

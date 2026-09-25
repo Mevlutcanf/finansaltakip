@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import UIKit
 
 struct DashboardView: View {
     @Environment(\.modelContext) private var modelContext
@@ -21,11 +22,15 @@ struct DashboardView: View {
                         RoastView()
                     } label: {
                         Label("Roast My Wallet", systemImage: "flame")
+                            .symbolEffect(.pulse)
                     }
+                    .buttonStyle(PressableButtonStyle())
                 }
             }
             .padding()
+            .animation(.easeOut(duration: 0.35), value: viewModel == nil)
         }
+        .background(Color(.systemGroupedBackground).ignoresSafeArea())
         .navigationTitle("AnPause")
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
@@ -66,25 +71,27 @@ struct DashboardView: View {
     @ViewBuilder
     private func weeklyChallengeSection(viewModel: DashboardViewModel) -> some View {
         if let challenge = viewModel.weeklyChallenge {
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 10) {
                 HStack {
                     Label("İlk 7 Gün Meydan Okuması", systemImage: "flag.checkered")
-                        .font(.subheadline.weight(.medium))
+                        .font(.subheadline.weight(.semibold))
+                        .symbolEffect(.bounce, value: challenge.activeDays)
                     Spacer()
                     Text("\(challenge.activeDays)/\(challenge.totalDays)")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(.secondary)
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(Theme.accent)
                 }
                 ProgressView(value: Double(challenge.activeDays), total: Double(challenge.totalDays))
-                    .tint(.accentColor)
+                    .tint(Theme.accent)
+                    .animation(.spring(response: 0.5, dampingFraction: 0.8), value: challenge.activeDays)
                 Text(challenge.isCompleted
                     ? "Harika! İlk haftanı tamamladın."
                     : "Her gün en az bir harcama kaydet, alışveriş ertele ya da 'harcama yapmadım' de.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
-            .padding()
-            .background(.secondary.opacity(0.08), in: RoundedRectangle(cornerRadius: 16))
+            .premiumCard()
+            .transition(.opacity.combined(with: .scale(scale: 0.97)))
         }
     }
 
@@ -129,22 +136,26 @@ struct DashboardView: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Label("\(viewModel.streak.noSpendDayStreak) günlük seri", systemImage: "flame.fill")
-                    .font(.subheadline.weight(.medium))
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Theme.ember)
+                    .symbolEffect(.bounce, value: viewModel.streak.noSpendDayStreak)
                 Spacer()
                 if !viewModel.isTodayConfirmedNoSpend {
                     Button("Bugün harcama yapmadım") {
-                        viewModel.confirmNoSpendToday()
+                        withAnimation(.spring(response: 0.4, dampingFraction: 0.75)) {
+                            viewModel.confirmNoSpendToday()
+                        }
                     }
-                    .font(.caption.weight(.medium))
+                    .font(.caption.weight(.semibold))
                     .buttonStyle(.bordered)
+                    .tint(Theme.ember)
                 }
             }
             Text("Bu hafta \(viewModel.streak.cooldownStreakThisWeek) kez dürtünü erteledin.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
-        .padding()
-        .background(.secondary.opacity(0.08), in: RoundedRectangle(cornerRadius: 16))
+        .premiumCard()
     }
 
     @ViewBuilder
@@ -179,12 +190,13 @@ struct DashboardView: View {
                 ForEach(viewModel.activeShieldSessions) { session in
                     HStack {
                         Image(systemName: "shield.fill")
-                            .foregroundStyle(.orange)
+                            .foregroundStyle(Theme.ember)
+                            .symbolEffect(.pulse)
                         Text("Bitiş: \(session.expiresAt.formatted(date: .omitted, time: .shortened))")
+                            .font(.subheadline.weight(.medium))
                         Spacer()
                     }
-                    .padding()
-                    .background(.orange.opacity(0.1), in: RoundedRectangle(cornerRadius: 12))
+                    .premiumCard()
                 }
             }
         }
@@ -217,16 +229,17 @@ private struct SummaryCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             Image(systemName: symbolName)
-                .foregroundStyle(.tint)
+                .font(.title3)
+                .foregroundStyle(Theme.accent)
             Text(value)
                 .font(.title3.bold())
+                .contentTransition(.numericText())
             Text(title)
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding()
-        .background(.secondary.opacity(0.08), in: RoundedRectangle(cornerRadius: 16))
+        .premiumCard()
     }
 }
 
@@ -236,7 +249,10 @@ struct TransactionRow: View {
     var body: some View {
         HStack {
             Image(systemName: transaction.category.symbolName)
-                .foregroundStyle(.tint)
+                .font(.subheadline)
+                .foregroundStyle(Theme.accent)
+                .frame(width: 28, height: 28)
+                .background(Theme.accent.opacity(0.12), in: Circle())
             VStack(alignment: .leading) {
                 Text(transaction.category.displayName)
                     .font(.subheadline.weight(.medium))

@@ -101,7 +101,12 @@ struct ChipGrid<Item: Identifiable & Hashable, Content: View>: View {
         FlowLayout(items: items) { item in
             content(item)
                 .chipStyle(isSelected: item == selection)
-                .onTapGesture { selection = item }
+                .onTapGesture {
+                    SoundService.shared.play(.tick)
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                        selection = item
+                    }
+                }
         }
     }
 }
@@ -125,9 +130,13 @@ private extension View {
             .font(.subheadline.weight(.medium))
             .padding(.horizontal, 14)
             .padding(.vertical, 8)
-            .background(isSelected ? Color.accentColor.opacity(0.2) : Color.secondary.opacity(0.08))
-            .foregroundStyle(isSelected ? Color.accentColor : Color.primary)
+            .background(isSelected ? Theme.accent.opacity(0.18) : Color.secondary.opacity(0.08))
+            .foregroundStyle(isSelected ? Theme.accent : Color.primary)
             .clipShape(Capsule())
+            .overlay(
+                Capsule().strokeBorder(isSelected ? Theme.accent.opacity(0.5) : .clear, lineWidth: 1.5)
+            )
+            .scaleEffect(isSelected ? 1.04 : 1.0)
     }
 }
 

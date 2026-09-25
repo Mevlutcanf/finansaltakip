@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import UIKit
 
 struct RoastView: View {
     @Environment(\.modelContext) private var modelContext
@@ -23,9 +24,12 @@ struct RoastView: View {
                 if let viewModel {
                     if viewModel.isLoading {
                         ProgressView()
+                            .tint(Theme.accent)
                             .frame(maxWidth: .infinity)
+                            .padding(.vertical, 40)
                     } else {
                         RoastCard(text: viewModel.roastText) {
+                            SoundService.shared.play(.tick)
                             shareCardURL = ShareCardRenderer.renderPNG(
                                 icon: "flame.fill",
                                 headline: "Roast My Wallet",
@@ -34,11 +38,14 @@ struct RoastView: View {
                                 filePrefix: "anpause-roast"
                             )
                         }
+                        .transition(.opacity.combined(with: .scale(scale: 0.97)))
                     }
                 }
             }
             .padding()
+            .animation(.easeOut(duration: 0.3), value: viewModel?.isLoading)
         }
+        .background(Color(.systemGroupedBackground).ignoresSafeArea())
         .navigationTitle("Roast My Wallet")
         .sheet(item: Binding(get: { shareCardURL.map(ShareFileItem.init) }, set: { shareCardURL = $0?.url })) { item in
             ShareSheet(activityItems: [item.url])
@@ -60,18 +67,19 @@ private struct RoastCard: View {
     let onShare: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 16) {
             Image(systemName: "flame.fill")
-                .foregroundStyle(.orange)
+                .font(.title2)
+                .foregroundStyle(Theme.ember)
+                .symbolEffect(.pulse)
             Text(text)
                 .font(.body)
             Button(action: onShare) {
                 Label("Paylaş", systemImage: "square.and.arrow.up")
             }
-            .font(.subheadline)
+            .buttonStyle(PrimaryButtonStyle())
         }
-        .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.secondary.opacity(0.08), in: RoundedRectangle(cornerRadius: 16))
+        .premiumCard()
     }
 }

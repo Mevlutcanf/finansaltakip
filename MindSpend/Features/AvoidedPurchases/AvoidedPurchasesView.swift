@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import UIKit
 
 struct AvoidedPurchasesView: View {
     @Query(sort: \AvoidedPurchase.createdAt, order: .reverse) private var items: [AvoidedPurchase]
@@ -82,36 +83,51 @@ private struct AvoidedCelebrationView: View {
     @Environment(\.dismiss) private var dismiss
     let item: AvoidedPurchase
     @State private var shareCardURL: URL?
+    @State private var didAppear = false
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 20) {
-                Image(systemName: "hand.raised.fill")
-                    .font(.system(size: 56))
-                    .foregroundStyle(.green)
+            ZStack {
+                Theme.backgroundGradient.ignoresSafeArea()
 
-                Text("Vazgeçtin!")
-                    .font(.title.bold())
+                VStack(spacing: 20) {
+                    ZStack {
+                        Circle()
+                            .fill(Color.green.opacity(0.2))
+                            .frame(width: 120, height: 120)
+                        Image(systemName: "hand.raised.fill")
+                            .font(.system(size: 52))
+                            .foregroundStyle(.green)
+                            .symbolEffect(.bounce, value: didAppear)
+                    }
+                    .scaleEffect(didAppear ? 1 : 0.6)
+                    .opacity(didAppear ? 1 : 0)
 
-                Text("\(item.itemName) — \(item.money.formatted) cebinde kaldı.")
-                    .font(.title3)
-                    .multilineTextAlignment(.center)
-                    .foregroundStyle(.secondary)
+                    Text("Vazgeçtin!")
+                        .font(.title.bold())
+                        .foregroundStyle(.white)
 
-                Button {
-                    shareCardURL = ShareCardRenderer.renderPNG(
-                        icon: "hand.raised.fill",
-                        headline: "Vazgeçtim!",
-                        message: "\(item.itemName) — \(item.money.formatted) cebimde kaldı.",
-                        footer: "AnPause ile dürtünü yendin",
-                        filePrefix: "anpause-avoided"
-                    )
-                } label: {
-                    Label("Paylaş", systemImage: "square.and.arrow.up")
+                    Text("\(item.itemName) — \(item.money.formatted) cebinde kaldı.")
+                        .font(.title3)
+                        .multilineTextAlignment(.center)
+                        .foregroundStyle(.white.opacity(0.8))
+
+                    Button {
+                        shareCardURL = ShareCardRenderer.renderPNG(
+                            icon: "hand.raised.fill",
+                            headline: "Vazgeçtim!",
+                            message: "\(item.itemName) — \(item.money.formatted) cebimde kaldı.",
+                            footer: "AnPause ile dürtünü yendin",
+                            filePrefix: "anpause-avoided"
+                        )
+                    } label: {
+                        Label("Paylaş", systemImage: "square.and.arrow.up")
+                    }
+                    .buttonStyle(PrimaryButtonStyle())
+                    .padding(.horizontal, 32)
                 }
-                .buttonStyle(.borderedProminent)
+                .padding()
             }
-            .padding()
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Kapat") { dismiss() }
@@ -119,6 +135,13 @@ private struct AvoidedCelebrationView: View {
             }
             .sheet(item: Binding(get: { shareCardURL.map(ShareFileItem.init) }, set: { shareCardURL = $0?.url })) { shareItem in
                 ShareSheet(activityItems: [shareItem.url])
+            }
+            .onAppear {
+                SoundService.shared.play(.celebration)
+                UINotificationFeedbackGenerator().notificationOccurred(.success)
+                withAnimation(.spring(response: 0.5, dampingFraction: 0.65)) {
+                    didAppear = true
+                }
             }
         }
     }
