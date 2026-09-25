@@ -10,6 +10,7 @@ struct RootTabView: View {
             OnboardingView {
                 NotificationService.shared.requestAuthorizationIfNeeded()
                 NotificationService.shared.scheduleWeeklyReflection()
+                FirstLaunchTracker.recordFirstLaunchIfNeeded()
                 hasCompletedOnboarding = true
             }
         }

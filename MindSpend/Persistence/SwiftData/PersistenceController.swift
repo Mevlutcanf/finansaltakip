@@ -8,7 +8,8 @@ enum PersistenceController {
         AvoidedPurchase.self,
         ShieldRule.self,
         ShieldSession.self,
-        NoSpendDay.self
+        NoSpendDay.self,
+        RecurringItem.self
     ])
 
     static func makeContainer(inMemory: Bool = false) -> ModelContainer {

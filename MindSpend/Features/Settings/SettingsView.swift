@@ -10,6 +10,12 @@ struct SettingsView: View {
 
     var body: some View {
         List {
+            Section("Araçlar") {
+                NavigationLink("Abonelikler ve Sürekli Gider/Gelir") {
+                    RecurringItemsView()
+                }
+            }
+
             Section("Gizlilik") {
                 NavigationLink("Gizlilik") {
                     PrivacyView()
@@ -40,7 +46,7 @@ struct SettingsView: View {
             Button("Sil", role: .destructive, action: deleteAllData)
             Button("Vazgeç", role: .cancel) {}
         }
-        .sheet(item: Binding(get: { exportURL.map(ShareItem.init) }, set: { exportURL = $0?.url })) { item in
+        .sheet(item: Binding(get: { exportURL.map(ShareFileItem.init) }, set: { exportURL = $0?.url })) { item in
             ShareSheet(activityItems: [item.url])
         }
     }
@@ -51,6 +57,7 @@ struct SettingsView: View {
         try? modelContext.delete(model: ShieldRule.self)
         try? modelContext.delete(model: ShieldSession.self)
         try? modelContext.delete(model: NoSpendDay.self)
+        try? modelContext.delete(model: RecurringItem.self)
         try? modelContext.save()
     }
 
@@ -64,19 +71,4 @@ struct SettingsView: View {
             exportError = "Export başarısız oldu. Lütfen tekrar dene."
         }
     }
-}
-
-private struct ShareItem: Identifiable {
-    let url: URL
-    var id: String { url.absoluteString }
-}
-
-private struct ShareSheet: UIViewControllerRepresentable {
-    let activityItems: [Any]
-
-    func makeUIViewController(context: Context) -> UIActivityViewController {
-        UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
-    }
-
-    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }

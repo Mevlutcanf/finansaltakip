@@ -11,6 +11,7 @@ struct DashboardView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 if let viewModel {
+                    weeklyChallengeSection(viewModel: viewModel)
                     behavioralSummarySection(viewModel: viewModel)
                     streakSection(viewModel: viewModel)
                     summaryCards(viewModel: viewModel)
@@ -59,6 +60,31 @@ struct DashboardView: View {
                 )
             }
             viewModel?.refresh()
+        }
+    }
+
+    @ViewBuilder
+    private func weeklyChallengeSection(viewModel: DashboardViewModel) -> some View {
+        if let challenge = viewModel.weeklyChallenge {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    Label("İlk 7 Gün Meydan Okuması", systemImage: "flag.checkered")
+                        .font(.subheadline.weight(.medium))
+                    Spacer()
+                    Text("\(challenge.activeDays)/\(challenge.totalDays)")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                }
+                ProgressView(value: Double(challenge.activeDays), total: Double(challenge.totalDays))
+                    .tint(.accentColor)
+                Text(challenge.isCompleted
+                    ? "Harika! İlk haftanı tamamladın."
+                    : "Her gün en az bir harcama kaydet, alışveriş ertele ya da 'harcama yapmadım' de.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            .padding()
+            .background(.secondary.opacity(0.08), in: RoundedRectangle(cornerRadius: 16))
         }
     }
 

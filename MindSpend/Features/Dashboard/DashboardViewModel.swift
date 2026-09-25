@@ -12,6 +12,7 @@ final class DashboardViewModel {
     private(set) var streak: StreakSummary = StreakSummary(noSpendDayStreak: 0, cooldownStreakThisWeek: 0)
     private(set) var isTodayConfirmedNoSpend = false
     private(set) var behavioralMetrics: BehavioralMetrics = .empty
+    private(set) var weeklyChallenge: WeeklyChallengeStatus?
 
     private let transactionRepository: TransactionRepositoryProtocol
     private let avoidedPurchaseRepository: AvoidedPurchaseRepositoryProtocol
@@ -61,6 +62,21 @@ final class DashboardViewModel {
             activeShieldSessions = try shieldSessionRepository.fetchActive()
             isTodayConfirmedNoSpend = try noSpendDayRepository.isTodayConfirmed()
             streak = streakService.summary()
+
+            if let startDate = FirstLaunchTracker.firstLaunchDate {
+                let windowEnd = calendar.date(byAdding: .day, value: WeeklyChallengeService.totalDays, to: calendar.startOfDay(for: startDate)) ?? startDate
+                let challengeTransactions = try transactionRepository.fetch(from: startDate, to: windowEnd)
+                let challengeAvoided = allAvoided.filter { $0.createdAt >= startDate && $0.createdAt < windowEnd }
+                let allNoSpendDays = try noSpendDayRepository.fetchAll()
+                weeklyChallenge = WeeklyChallengeService.status(
+                    startDate: startDate,
+                    transactions: challengeTransactions,
+                    avoidedPurchases: challengeAvoided,
+                    noSpendDays: allNoSpendDays
+                )
+            } else {
+                weeklyChallenge = nil
+            }
         } catch {
             // Local persistence okuma hatası; kullanıcıya boş durum gösterilir.
             monthlySpend = .zero

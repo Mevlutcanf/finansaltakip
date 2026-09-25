@@ -27,3 +27,10 @@ protocol ShieldSessionRepositoryProtocol {
     func add(_ session: ShieldSession) throws
     func update(_ session: ShieldSession, status: ShieldSessionStatus) throws
 }
+
+protocol RecurringItemRepositoryProtocol {
+    func fetchAll() throws -> [RecurringItem]
+    func add(_ item: RecurringItem) throws
+    func setActive(_ item: RecurringItem, isActive: Bool) throws
+    func delete(_ item: RecurringItem) throws
+}
