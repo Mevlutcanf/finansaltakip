@@ -81,7 +81,10 @@ final class WeeklyChallengeServiceTests: XCTestCase {
 
     func testActionsOutsideWindowAreIgnored() {
         let start = Date(timeIntervalSince1970: 1_700_000_000)
-        let beforeWindow = start.addingTimeInterval(-3600)
+        // Pencere `startOfDay(for: start)`'a yuvarlanır; gerçekten pencere
+        // dışında olduğundan emin olmak için bir önceki günü kullanıyoruz
+        // (start - 1 saat, start ile aynı gün içinde kalabilir).
+        let beforeWindow = Calendar.current.date(byAdding: .day, value: -1, to: start)!
         let transactions = [Transaction(amountMinorUnits: 100, date: beforeWindow, category: .food, emotion: .neutral)]
 
         let status = WeeklyChallengeService.status(
