@@ -11,6 +11,7 @@ final class DashboardViewModel {
     private(set) var recentTransactions: [Transaction] = []
     private(set) var streak: StreakSummary = StreakSummary(noSpendDayStreak: 0, cooldownStreakThisWeek: 0)
     private(set) var isTodayConfirmedNoSpend = false
+    private(set) var behavioralMetrics: BehavioralMetrics = .empty
 
     private let transactionRepository: TransactionRepositoryProtocol
     private let avoidedPurchaseRepository: AvoidedPurchaseRepositoryProtocol
@@ -46,10 +47,16 @@ final class DashboardViewModel {
             recentTransactions = Array(monthTransactions.prefix(5))
 
             let allAvoided = try avoidedPurchaseRepository.fetchAll()
-            let monthAvoided = allAvoided.filter { $0.status == .avoided && $0.createdAt >= monthStart }
+            let monthAvoidedAll = allAvoided.filter { $0.createdAt >= monthStart }
+            let monthAvoided = monthAvoidedAll.filter { $0.status == .avoided }
             avoidedCount = monthAvoided.count
             let avoidedTotal = monthAvoided.reduce(Int64(0)) { $0 + $1.amountMinorUnits }
             avoidedPotential = Money(minorUnits: avoidedTotal)
+
+            behavioralMetrics = BehavioralMetricsService.compute(
+                transactions: monthTransactions,
+                avoidedPurchases: monthAvoidedAll
+            )
 
             activeShieldSessions = try shieldSessionRepository.fetchActive()
             isTodayConfirmedNoSpend = try noSpendDayRepository.isTodayConfirmed()

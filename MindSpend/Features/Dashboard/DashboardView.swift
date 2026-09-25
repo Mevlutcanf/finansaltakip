@@ -11,8 +11,9 @@ struct DashboardView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 if let viewModel {
-                    summaryCards(viewModel: viewModel)
+                    behavioralSummarySection(viewModel: viewModel)
                     streakSection(viewModel: viewModel)
+                    summaryCards(viewModel: viewModel)
                     activeShieldSection(viewModel: viewModel)
                     recentTransactionsSection(viewModel: viewModel)
                     NavigationLink {
@@ -58,6 +59,42 @@ struct DashboardView: View {
                 )
             }
             viewModel?.refresh()
+        }
+    }
+
+    /// Rehber madde 2: ana metrik "ne kadar harcadım" değil "neden ve ne
+    /// sıklıkla dürtü yaşıyorum" olmalı — bu yüzden bu bölüm para kartlarının
+    /// önünde, en üstte gösterilir.
+    @ViewBuilder
+    private func behavioralSummarySection(viewModel: DashboardViewModel) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Bu Ayki Davranışın")
+                .font(.headline)
+
+            HStack(spacing: 12) {
+                SummaryCard(
+                    title: "Kaydedilen dürtü",
+                    value: "\(viewModel.behavioralMetrics.impulseCount)",
+                    symbolName: "bolt.heart"
+                )
+                SummaryCard(
+                    title: "Başlatılan cooldown",
+                    value: "\(viewModel.behavioralMetrics.cooldownsStarted)",
+                    symbolName: "hourglass"
+                )
+            }
+            HStack(spacing: 12) {
+                SummaryCard(
+                    title: "En sık duygu",
+                    value: viewModel.behavioralMetrics.topEmotion?.displayName ?? "—",
+                    symbolName: viewModel.behavioralMetrics.topEmotion?.symbolName ?? "circle"
+                )
+                SummaryCard(
+                    title: "En sık tetikleyici",
+                    value: viewModel.behavioralMetrics.topTrigger?.displayName ?? "—",
+                    symbolName: viewModel.behavioralMetrics.topTrigger?.symbolName ?? "questionmark.circle"
+                )
+            }
         }
     }
 

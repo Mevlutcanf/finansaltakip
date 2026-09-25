@@ -14,12 +14,19 @@ struct TriggerSpend: Identifiable {
     let total: Money
 }
 
+struct BehaviorCycleStage: Identifiable {
+    let id: Int
+    let title: String
+    let count: Int
+}
+
 @Observable
 final class InsightsViewModel {
     private(set) var emotionBreakdown: [EmotionSpend] = []
     private(set) var triggerBreakdown: [TriggerSpend] = []
     private(set) var avoidedCount: Int = 0
     private(set) var avoidedTotal: Money = .zero
+    private(set) var behaviorCycle: [BehaviorCycleStage] = []
 
     private let transactionRepository: TransactionRepositoryProtocol
     private let avoidedPurchaseRepository: AvoidedPurchaseRepositoryProtocol
@@ -54,6 +61,22 @@ final class InsightsViewModel {
             let avoidedOnly = avoided.filter { $0.status == .avoided }
             avoidedCount = avoidedOnly.count
             avoidedTotal = Money(minorUnits: avoidedOnly.reduce(Int64(0)) { $0 + $1.amountMinorUnits })
+            behaviorCycle = Self.makeBehaviorCycle(from: avoided)
         }
+    }
+
+    /// Rehber madde 23.4 — "Dürtü → Cooldown → Tekrar değerlendirme → Vazgeçildi"
+    /// döngüsünü gerçek `AvoidedPurchase` verisinden hesaplar. Uydurma veri
+    /// kullanılmaz; her hücre gerçek kayıt sayısıdır.
+    static func makeBehaviorCycle(from avoidedPurchases: [AvoidedPurchase]) -> [BehaviorCycleStage] {
+        let started = avoidedPurchases.count
+        let resolved = avoidedPurchases.filter { $0.status != .pending }.count
+        let avoided = avoidedPurchases.filter { $0.status == .avoided }.count
+
+        return [
+            BehaviorCycleStage(id: 0, title: "Dürtü Kaydedildi", count: started),
+            BehaviorCycleStage(id: 1, title: "Cooldown Tamamlandı", count: resolved),
+            BehaviorCycleStage(id: 2, title: "Vazgeçildi", count: avoided)
+        ]
     }
 }

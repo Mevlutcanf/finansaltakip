@@ -149,6 +149,7 @@ struct PrePurchaseCheckView: View {
             status: .pending
         )
         try? AvoidedPurchaseRepository(context: modelContext).add(pending)
+        NotificationService.shared.scheduleCooldownExpiringSoon(for: pending)
         NotificationService.shared.scheduleCooldownExpired(for: pending)
         dismiss()
     }

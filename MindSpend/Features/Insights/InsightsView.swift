@@ -45,6 +45,26 @@ struct InsightsView: View {
                                 .font(.title3.bold())
                         }
                     }
+
+                    section(title: "Davranış Döngüsü") {
+                        if viewModel.behaviorCycle.allSatisfy({ $0.count == 0 }) {
+                            emptyState
+                        } else {
+                            Chart(viewModel.behaviorCycle) { stage in
+                                BarMark(
+                                    x: .value("Sayı", stage.count),
+                                    y: .value("Aşama", stage.title)
+                                )
+                                .foregroundStyle(by: .value("Aşama", stage.title))
+                            }
+                            .frame(height: CGFloat(viewModel.behaviorCycle.count) * 44 + 20)
+                            .chartLegend(.hidden)
+
+                            Text("Dürtü kaydettiğinde cooldown başlar; süre dolup karar verildiğinde ve vazgeçtiğinde sayaç ilerler.")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
                 }
                 .padding()
             }
