@@ -2,19 +2,17 @@ import SwiftUI
 import SwiftData
 import FamilyControls
 
+/// Launch stratejisi (rehber gözden geçirme, 2026-09): uygulama önce
+/// tamamen ücretsiz yayınlanıp gerçek kullanıcı davranışı doğrulanacak,
+/// Premium sınırlar/paywall bu aşamada hiçbir yerde kullanıcıya
+/// gösterilmeyecek. Shield kural sayısı bu yüzden sınırlandırılmıyor.
 struct ShieldSetupView: View {
     @Query(sort: \ShieldRule.createdAt, order: .reverse) private var rules: [ShieldRule]
     @Environment(\.modelContext) private var modelContext
     @Query(filter: #Predicate<ShieldSession> { $0.statusRaw == "active" }) private var activeSessions: [ShieldSession]
-    @Environment(SubscriptionManager.self) private var subscriptionManager
     @State private var authService = ScreenTimeAuthorizationService()
     @State private var showAddRule = false
-    @State private var showPaywall = false
     @State private var activationError: String?
-
-    private var canAddRule: Bool {
-        subscriptionManager.state.isPremium || rules.count < FreeTierLimits.maxShieldRules
-    }
 
     var body: some View {
         List {
@@ -52,11 +50,7 @@ struct ShieldSetupView: View {
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button {
-                    if canAddRule {
-                        showAddRule = true
-                    } else {
-                        showPaywall = true
-                    }
+                    showAddRule = true
                 } label: {
                     Label("Yeni Kural", systemImage: "plus")
                 }
@@ -65,9 +59,6 @@ struct ShieldSetupView: View {
         }
         .sheet(isPresented: $showAddRule) {
             AddShieldRuleView()
-        }
-        .sheet(isPresented: $showPaywall) {
-            PaywallView()
         }
         .onAppear { authService.refreshStatus() }
     }
