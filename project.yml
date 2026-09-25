@@ -36,6 +36,7 @@ targets:
       properties:
         UILaunchScreen: {}
         CFBundleDisplayName: AnPause
+        ITSAppUsesNonExemptEncryption: false
     entitlements:
       path: MindSpend/App/MindSpend.entitlements
       properties:
